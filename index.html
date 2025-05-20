@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Letras para recortar</title>
+<style>
+  body {
+    font-family: 'Fredoka One', cursive;
+    background: #fff;
+    padding: 30px;
+    text-align: center;
+  }
+
+  input {
+    padding: 12px;
+    font-size: 22px;
+    width: 250px;
+    border-radius: 8px;
+    border: 2px solid #007BFF;
+  }
+
+  button {
+    padding: 12px 25px;
+    margin: 15px;
+    font-size: 22px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  #resultado {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .letra-cuadro {
+    width: 150px;
+    height: 150px;
+    border: 3px solid #007BFF;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 120px;
+    font-weight: bold;
+    color: #007BFF;
+    user-select: none;
+    box-shadow: 0 0 8px rgba(0,123,255,0.3);
+  }
+
+  @media print {
+    input, button {
+      display: none;
+    }
+
+    body {
+      padding: 10px;
+    }
+
+    #resultado {
+      gap: 10px;
+      justify-content: start;
+    }
+
+    .letra-cuadro {
+      width: 180px;
+      height: 180px;
+      font-size: 140px;
+      border: 2px solid black;
+      box-shadow: none;
+      color: black;
+      page-break-inside: avoid;
+      margin-bottom: 10px;
+    }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<h1>Escribe un nombre para imprimir letras recortables</h1>
+<input type="text" id="nombreInput" placeholder="Ejemplo: LUCIA" />
+<button onclick="mostrarLetras()">Mostrar Letras</button>
+<button onclick="window.print()">Imprimir</button>
+
+<div id="resultado"></div>
+
+<script>
+  function mostrarLetras() {
+    const nombre = document.getElementById("nombreInput").value.trim().toUpperCase();
+    if(!nombre) {
+      alert("Por favor, escribe un nombre");
+      return;
+    }
+    const contenedor = document.getElementById("resultado");
+    contenedor.innerHTML = "";
+    // Filtrar solo A-Z y espacios (no mostramos espacios)
+    const letras = nombre.split('').filter(c => c.match(/[A-Z]/));
+
+    letras.forEach(letra => {
+      const div = document.createElement('div');
+      div.className = 'letra-cuadro';
+      div.textContent = letra;
+      contenedor.appendChild(div);
+    });
+  }
+</script>
+
+</body>
+</html>
