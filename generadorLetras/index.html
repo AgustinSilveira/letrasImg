@@ -11,7 +11,7 @@
     text-align: center;
   }
 
-  input {
+  input[type="text"] {
     padding: 12px;
     font-size: 22px;
     width: 250px;
@@ -44,18 +44,19 @@
   }
 
   .letra-cuadro {
-    width: 150px;
-    height: 150px;
+    /* Ancho y alto escalados con variable */
+    width: var(--cuadro-size, 150px);
+    height: var(--cuadro-size, 150px);
     border: 3px solid #007BFF;
     border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 120px;
     font-weight: bold;
     color: #007BFF;
     user-select: none;
     box-shadow: 0 0 8px rgba(0,123,255,0.3);
+    font-size: var(--letra-size, 120px);
   }
 
   .corazon {
@@ -69,11 +70,12 @@
     50% { transform: scale(1.35); }
   }
 
+  /* Ajustes para impresión */
   @media print {
-    input, button {
-      display: none;
+    /* Ocultar todo menos el resultado */
+    body > *:not(#resultado) {
+      display: none !important;
     }
-
     body {
       padding: 10px;
     }
@@ -84,14 +86,18 @@
     }
 
     .letra-cuadro {
-      width: 280px;
-      height: 180px;
-      font-size: 280px;
+      /* También escalamos cuadro e letra en impresión */
+      width: var(--cuadro-size-print, 280px);
+      height: var(--cuadro-size-print, 280px);
+      font-size: var(--letra-size-print, 230px);
       border: 2px solid black;
       box-shadow: none;
       color: black;
       page-break-inside: avoid;
       margin-bottom: 10px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .corazon {
@@ -103,34 +109,61 @@
 </head>
 <body>
 
-<h1>Escribe un nombre para imprimir letras recortables</h1>
-<h2>Para iari <span class="corazon">♥</span></h2>
+<h1>Escribe palabras para recortar</h1>
+<h3>Para iari <span class="corazon">♥</span></h3>
 
 <input type="text" id="nombreInput" placeholder="Ejemplo: Agus" />
 <button onclick="mostrarLetras()">Mostrar Letras</button>
 <button onclick="window.print()">Imprimir</button>
 
+<div>
+  <label for="sizeRange">Ajustar tamaño letras y cuadros: </label>
+  <input type="range" id="sizeRange" min="50" max="300" value="120" />
+</div>
+
 <div id="resultado"></div>
 
 <script>
+  const resultado = document.getElementById("resultado");
+  const sizeRange = document.getElementById("sizeRange");
+
   function mostrarLetras() {
     const nombre = document.getElementById("nombreInput").value.trim().toUpperCase();
     if(!nombre) {
       alert("Por favor, escribe un nombre");
       return;
     }
-    const contenedor = document.getElementById("resultado");
-    contenedor.innerHTML = "";
-    // Filtrar solo A-Z y espacios (no mostramos espacios)
+    resultado.innerHTML = "";
     const letras = nombre.split('').filter(c => c.match(/[A-Z]/));
-
     letras.forEach(letra => {
       const div = document.createElement('div');
       div.className = 'letra-cuadro';
       div.textContent = letra;
-      contenedor.appendChild(div);
+      resultado.appendChild(div);
     });
+    actualizarTamanio(); // Aplica tamaño actual después de crear
   }
+
+  // Actualiza tamaño letras y cuadros (pantalla e impresión)
+  function actualizarTamanio() {
+    const letraSize = parseInt(sizeRange.value);
+    // Usamos el tamaño de la letra para calcular tamaño cuadro (algo más grande)
+    const cuadroSize = letraSize * 1.3; // 30% más grande que la letra
+
+    // Variables CSS para pantalla
+    resultado.style.setProperty('--letra-size', letraSize + 'px');
+    resultado.style.setProperty('--cuadro-size', cuadroSize + 'px');
+
+    // Para impresión, escalamos proporcionalmente (menos que doble)
+    const letraSizePrint = Math.round(letraSize * 1.8);
+    const cuadroSizePrint = Math.round(cuadroSize * 1.8);
+
+    resultado.style.setProperty('--letra-size-print', letraSizePrint + 'px');
+    resultado.style.setProperty('--cuadro-size-print', cuadroSizePrint + 'px');
+  }
+
+  sizeRange.addEventListener('input', actualizarTamanio);
+
 </script>
 
 </body>

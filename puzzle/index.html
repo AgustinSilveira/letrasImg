@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Generador de Puzzle</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    padding: 30px;
+    background: #f7f7f7;
+    color: #333;
+  }
+  h1 {
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #222;
+  }
+  #original-image {
+    max-width: 90vw;
+    max-height: 300px;
+    margin: 20px auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    display: block;
+  }
+  #controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+  }
+  label {
+    font-weight: 600;
+    margin-right: 5px;
+  }
+  input[type="file"] {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    cursor: pointer;
+  }
+  input[type="number"] {
+    width: 80px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    text-align: center;
+    font-size: 1rem;
+  }
+  button {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 3px 7px rgba(0,120,212,0.5);
+    transition: background-color 0.25s ease;
+  }
+  button:hover:not(:disabled) {
+    background-color: #005ea2;
+  }
+  button:disabled {
+    background-color: #a3c0e8;
+    cursor: default;
+    box-shadow: none;
+  }
+  #puzzle-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+  }
+  canvas {
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+  }
+  #zoom-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+  #zoom-controls button {
+    padding: 8px 14px;
+    font-size: 1.1rem;
+  }
+  #zoom-range {
+    width: 150px;
+  }
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #puzzle-container, #puzzle-container * {
+      visibility: visible;
+    }
+    #puzzle-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 5px;
+      background: white;
+      padding: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Generador de Puzzle</h1>
+
+<div id="controls">
+  <div>
+    <label for="imageInput">Seleccionar imagen:</label><br />
+    <input type="file" id="imageInput" accept="image/*" />
+  </div>
+  <div>
+    <label for="numPieces">Número de piezas:</label><br />
+    <input type="number" id="numPieces" min="4" max="100" value="6" />
+  </div>
+  <div style="display:flex; flex-direction: column; justify-content: flex-end;">
+    <button id="generateBtn" disabled>Generar Puzzle</button>
+  </div>
+  <div style="display:flex; flex-direction: column; justify-content: flex-end;">
+    <button id="printBtn" disabled>Imprimir Piezas</button>
+  </div>
+</div>
+
+<div id="zoom-controls" style="display:none;">
+  <button id="zoomOutBtn" title="Disminuir tamaño">➖</button>
+  <input type="range" id="zoom-range" min="0.3" max="3" step="0.01" value="1" />
+  <button id="zoomInBtn" title="Aumentar tamaño">➕</button>
+</div>
+
+<img id="original-image"/>
+
+<div id="puzzle-container"></div>
+
+<script>
+const originalImage = document.getElementById('original-image');
+const imageInput = document.getElementById('imageInput');
+const numPiecesInput = document.getElementById('numPieces');
+const generateBtn = document.getElementById('generateBtn');
+const printBtn = document.getElementById('printBtn');
+const container = document.getElementById('puzzle-container');
+
+const zoomControls = document.getElementById('zoom-controls');
+const zoomRange = document.getElementById('zoom-range');
+const zoomInBtn = document.getElementById('zoomInBtn');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+
+let loadedImage = null;
+let currentScale = 1;
+
+let pieceWidth, pieceHeight, rows, cols;
+const gap = 8;
+
+imageInput.addEventListener('change', () => {
+  const file = imageInput.files[0];
+  container.innerHTML = '';
+  printBtn.disabled = true;
+  zoomControls.style.display = 'none';
+  currentScale = 1;
+  zoomRange.value = 1;
+  updateZoom();
+
+  if (!file) {
+    originalImage.src = '';
+    generateBtn.disabled = true;
+    loadedImage = null;
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    originalImage.src = e.target.result;
+    loadedImage = new Image();
+    loadedImage.onload = () => {
+      generateBtn.disabled = false;
+    };
+    loadedImage.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+generateBtn.addEventListener('click', () => {
+  if (!loadedImage) return;
+  generatePuzzle(loadedImage, parseInt(numPiecesInput.value));
+});
+
+printBtn.addEventListener('click', () => {
+  window.print();
+});
+
+zoomRange.addEventListener('input', () => {
+  let val = parseFloat(zoomRange.value);
+  const minZoom = parseFloat(zoomRange.min);
+  const maxZoom = parseFloat(zoomRange.max);
+  if (val < minZoom) val = minZoom;
+  if (val > maxZoom) val = maxZoom;
+  currentScale = val;
+  updateZoom();
+});
+
+zoomInBtn.addEventListener('click', () => {
+  const maxZoom = parseFloat(zoomRange.max);
+  if (currentScale < maxZoom) {
+    currentScale = Math.min(maxZoom, currentScale + 0.05);
+    zoomRange.value = currentScale.toFixed(2);
+    updateZoom();
+  }
+});
+
+zoomOutBtn.addEventListener('click', () => {
+  const minZoom = parseFloat(zoomRange.min);
+  if (currentScale > minZoom) {
+    currentScale = Math.max(minZoom, currentScale - 0.05);
+    zoomRange.value = currentScale.toFixed(2);
+    updateZoom();
+  }
+});
+
+function updateZoom() {
+  const canvases = container.querySelectorAll('canvas');
+  canvases.forEach(c => {
+    c.style.width = (pieceWidth * currentScale) + 'px';
+    c.style.height = (pieceHeight * currentScale) + 'px';
+    // sin transform para evitar problemas al imprimir
+  });
+}
+
+function drawPuzzlePiece(ctx, x, y, w, h, edges) {
+  const tabSize = Math.min(w, h) / 4;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+
+  // Top edge
+  ctx.lineTo(x + w * 0.25, y);
+  if (edges.top !== 0) {
+    const dir = edges.top;
+    ctx.bezierCurveTo(
+      x + w * 0.25, y - dir * tabSize,
+      x + w * 0.75, y - dir * tabSize,
+      x + w * 0.75, y
+    );
+  }
+  ctx.lineTo(x + w, y);
+
+  // Right edge
+  ctx.lineTo(x + w, y + h * 0.25);
+  if (edges.right !== 0) {
+    const dir = edges.right;
+    ctx.bezierCurveTo(
+      x + w + dir * tabSize, y + h * 0.25,
+      x + w + dir * tabSize, y + h * 0.75,
+      x + w, y + h * 0.75
+    );
+  }
+  ctx.lineTo(x + w, y + h);
+
+  // Bottom edge
+  ctx.lineTo(x + w * 0.75, y + h);
+  if (edges.bottom !== 0) {
+    const dir = edges.bottom;
+    ctx.bezierCurveTo(
+      x + w * 0.75, y + h + dir * tabSize,
+      x + w * 0.25, y + h + dir * tabSize,
+      x + w * 0.25, y + h
+    );
+  }
+  ctx.lineTo(x, y + h);
+
+  // Left edge
+  ctx.lineTo(x, y + h * 0.75);
+  if (edges.left !== 0) {
+    const dir = edges.left;
+    ctx.bezierCurveTo(
+      x - dir * tabSize, y + h * 0.75,
+      x - dir * tabSize, y + h * 0.25,
+      x, y + h * 0.25
+    );
+  }
+  ctx.closePath();
+}
+
+function generatePuzzle(img, numPieces) {
+  container.innerHTML = '';
+  printBtn.disabled = true;
+  zoomControls.style.display = 'none';
+
+  rows = Math.floor(Math.sqrt(numPieces));
+  cols = Math.ceil(numPieces / rows);
+  pieceWidth = img.width / cols;
+  pieceHeight = img.height / rows;
+
+  // Generar info de bordes
+  const piecesEdges = [];
+  for(let r=0; r<rows; r++) {
+    piecesEdges[r] = [];
+    for(let c=0; c<cols; c++) {
+      piecesEdges[r][c] = {
+        top: r === 0 ? 0 : -piecesEdges[r-1][c].bottom,
+        left: c === 0 ? 0 : -piecesEdges[r][c-1].right,
+        bottom: (r === rows-1) ? 0 : (Math.random() > 0.5 ? 1 : -1),
+        right: (c === cols-1) ? 0 : (Math.random() > 0.5 ? 1 : -1)
+      };
+    }
+  }
+
+  const tabSizeX = pieceWidth / 4;
+  const tabSizeY = pieceHeight / 4;
+
+  for(let r=0; r<rows; r++) {
+    for(let c=0; c<cols; c++) {
+      const canvas = document.createElement('canvas');
+      canvas.width = pieceWidth + tabSizeX * 2;
+      canvas.height = pieceHeight + tabSizeY * 2;
+      const ctx = canvas.getContext('2d');
+
+      ctx.translate(tabSizeX, tabSizeY);
+
+      // Dibujar la pieza (clip)
+      drawPuzzlePiece(ctx, 0, 0, pieceWidth, pieceHeight, piecesEdges[r][c]);
+      ctx.clip();
+
+      // Dibujar la parte de la imagen ampliada para cubrir pestañas
+      ctx.drawImage(
+        img,
+        c * pieceWidth - tabSizeX,
+        r * pieceHeight - tabSizeY,
+        pieceWidth + tabSizeX * 2,
+        pieceHeight + tabSizeY * 2,
+        -tabSizeX,
+        -tabSizeY,
+        pieceWidth + tabSizeX * 2,
+        pieceHeight + tabSizeY * 2
+      );
+
+      // Bordes negros para ver piezas
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      drawPuzzlePiece(ctx, 0, 0, pieceWidth, pieceHeight, piecesEdges[r][c]);
+      ctx.stroke();
+
+      container.appendChild(canvas);
+    }
+  }
+
+  // Ahora permitimos zoom máximo hasta 3 (o más si quieres)
+  zoomRange.min = 0.3;
+  zoomRange.max = 3;
+  zoomRange.step = 0.01;
+  zoomRange.value = 1;
+  currentScale = 1;
+  updateZoom();
+
+  printBtn.disabled = false;
+  zoomControls.style.display = 'flex';
+}
+</script>
+
+</body>
+</html>
