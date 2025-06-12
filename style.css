@@ -1,0 +1,143 @@
+/* Estilo base */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f5f6fa;
+  color: #333;
+}
+
+/* Header */
+header {
+  padding: 30px 40px;
+  background-color: #ffffff;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #2c3e50;
+  letter-spacing: 1px;
+}
+
+/* Main layout */
+main {
+  padding: 40px 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Sección por categoría */
+.categoria {
+  margin-bottom: 60px;
+}
+
+.categoria h2 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  border-left: 5px solid #3498db;
+  padding-left: 12px;
+}
+
+/* Contenedor flex para tarjetas */
+.tarjetas-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: flex-start;
+}
+
+/* Tarjetas de recursos */
+.tarjeta {
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: #333;
+  width: calc(33.333% - 16px); /* 3 tarjetas por fila con espacio */
+  max-width: 440px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tarjeta:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.tarjeta img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.titulo {
+  padding: 16px;
+  font-size: 17px;
+  text-align: center;
+  font-weight: 600;
+  background-color: #ffffff;
+  border-top: 1px solid #eee;
+}
+
+/* Etiqueta "Nuevo" */
+.etiqueta {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: white;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
+  z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .tarjeta {
+    width: calc(50% - 12px); /* 2 tarjetas por fila en tablets */
+  }
+}
+
+@media (max-width: 600px) {
+  .tarjeta {
+    width: 100%; /* 1 tarjeta por fila en móviles */
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  .categoria h2 {
+    font-size: 1.3rem;
+  }
+
+  .titulo {
+    font-size: 15px;
+    padding: 14px;
+  }
+
+  .tarjeta img {
+    height: 140px;
+  }
+}
+
+@media (max-width: 400px) {
+  .titulo {
+    font-size: 14px;
+  }
+
+  .tarjeta img {
+    height: 120px;
+  }
+}

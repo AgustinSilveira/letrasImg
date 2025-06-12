@@ -1,69 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Menú Principal</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
-  body {
-    font-family: 'Fredoka One', cursive, sans-serif;
-    background: #f0f4ff;
-    padding: 40px;
-    text-align: center;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  h1 {
-    color: #007BFF;
-    margin-bottom: 40px;
-  }
-
-  .menu {
-    display: inline-block;
-    background: white;
-    padding: 30px 50px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  }
-
-  a.button-link {
-    display: inline-block;
-    padding: 18px 40px;
-    margin: 15px 0;
-    font-size: 24px;
-    color: white;
-    background-color: #007BFF;
-    border-radius: 14px;
-    text-decoration: none;
-    font-weight: 700;
-    box-shadow: 0 6px 12px rgba(0,123,255,0.6);
-    transition: background-color 0.3s ease;
-  }
-
-  a.button-link:hover {
-    background-color: #0056b3;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recursos para Maestras</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<h1>Menú Principal</h1>
+  <header>
+    <h1>Aula digital</h1>
+  </header>
 
-<div class="menu">
-  <a href="../generadorLetras/index.html" target="_blank" class="button-link" title="Abrir Letras para recortar">
-    Abrir Letras para Recortar
-  </a>
-</div>
-<div class="menu">
-  <a href="../puzzle/index.html" target="_blank" class="button-link" title="Abrir Letras para recortar">
-    Abrir Generador de puzzle
-  </a>
-</div>
+  <main>
+   <section class="categoria">
+  <h2>Material Didáctico</h2>
+  <div class="tarjetas-container">
+    <a href="../generadorLetras/index.html" class="tarjeta">
+      <img src="img/letras.png" alt="Letras para Recortar" />
+      <div class="titulo">Letras para Recortar</div>
+    </a>
+    <a href="../puzzle/index.html" class="tarjeta">
+      <img src="img/puzzle.png" alt="Generador de Puzzle" />
+      <div class="titulo">Generador de Puzzle</div>
+    </a>
+    <a href="generadorTarjetas/index.html" class="tarjeta">
+      <div class="etiqueta">Nuevo</div>
+      <img src="img/tarjetas.png" alt="Generador de tarjetas" />
+      <div class="titulo">Generador de tarjetas</div>
+    </a>
+  </div>
+</section>
+    <!-- <section class="categoria">
+      <h2>Organización</h2>
+      <div class="carrusel">
+        <a href="#" class="tarjeta">
+          <div class="etiqueta">Nuevo</div>
+          <img src="img/planificador.jpg" alt="Planificador Semanal">
+          <div class="titulo">Planificador Semanal</div>
+        </a>
+        <a href="#" class="tarjeta">
+          <div class="etiqueta">Nuevo</div>
+          <img src="img/horario.jpg" alt="Generador de Horarios">
+          <div class="titulo">Generador de Horarios</div>
+        </a>
+        <a href="#" class="tarjeta">
+          <div class="etiqueta">Nuevo</div>
+          <img src="img/asistencia.jpg" alt="Lista de Asistencia">
+          <div class="titulo">Lista de Asistencia</div>
+        </a>
+      </div>
+    </section> -->
+  </main>
 
 </body>
 </html>
